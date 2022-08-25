@@ -51,7 +51,6 @@ echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
 #echo 'Include = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf
 #pacman -Syy
 
-pacman -S plasma kde-applications --noconfirm
 
 echo "xorg или plasma(NVIDIA, так что нахуй)?"
 read -p "1 - xorg, 0 - plasma: " vm_setting
@@ -66,7 +65,7 @@ pacman -S $gui_install
 
 
 echo 'Cтавим DM'
-pacman -S sddm --noconfirm
+pacman -S plasma kde-applications sddm --noconfirm
 systemctl enable sddm
 
 echo 'Ставим шрифты'
