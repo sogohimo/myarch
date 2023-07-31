@@ -1,0 +1,70 @@
+#!/bin/bash
+
+echo "1. Какой диск вы хотите разметить? Введите имя диска (например, /dev/sda):"
+read disk_name
+
+loadkeys ru
+setfont cyr-sun16
+dhcpcd
+timedatectl set-ntp true
+fdisk $disk_name
+
+echo "2. Введите имя вашего компьютера (hostname):"
+read hostname
+
+# Введите команды для разметки диска и создания файловых систем
+echo "Мы производим разметку диска $disk_name..."
+mkfs.fat -F32 ${disk_name}1
+mkfs.ext4  ${disk_name}2
+mkfs.ext4  ${disk_name}3
+
+mount ${disk_name}2 /mnt
+mkdir /mnt/home
+mkdir -p /mnt/boot/efi
+mount ${disk_name}1 /mnt/boot/efi
+mount ${disk_name}3 /mnt/home
+
+pacman -S reflector && reflector --verbose  -l 5 -p https --sort rate --save /etc/pacman.d/mirrorlist && pacman -Syyu
+
+pacstrap /mnt base base-devel linux linux-firmware nano netctl dhcpcd
+
+genfstab -pU /mnt >> /mnt/etc/fstab
+
+arch-chroot /mnt /bin/bash
+
+echo "3. Введите пароль для ROOT пользователя:"
+passwd
+
+echo "4. Какое графическое окружение вы хотите использовать:"
+echo "   1. xfce"
+echo "   2. KDE"
+echo "   3. gnome"
+read -p "Введите номер графического окружения (1, 2 или 3):" de_choice
+
+case $de_choice in
+    1)
+        pacman -S xfce4 xfce4-goodies
+        ;;
+    2)
+        pacman -S xorg sddm plasma-desktop
+        ;;
+    3)
+        pacman -S gnome
+        ;;
+    *)
+        echo "Неверный выбор. Установка будет выполнена без графического окружения."
+        ;;
+esac
+
+# Установка программ (примеры, добавьте свои)
+pacman -S firefox
+
+pacman -Syy
+
+# Установка загрузчика (grub)
+pacman -S grub efibootmgr
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub
+grub-mkconfig -o /boot/grub/grub.cfg
+
+exit
+reboot
