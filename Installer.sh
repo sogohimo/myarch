@@ -192,7 +192,7 @@ function install_gui {
 
     pacman -S ttf-liberation ttf-dejavu --noconfirm
 
-    sudo pacman -S ufw reflector timeshift nginx konsole tigervnc --noconfirm
+    sudo pacman -S ufw reflector timeshift nginx konsole tigervnc dolphin --noconfirm
 
     pacman -S networkmanager network-manager-applet ppp --noconfirm
 
